@@ -160,7 +160,7 @@ function renderSuggestion({
 						variant='ghost'
 						size='icon-sm'
 						className='hover:rounded-full'
-						onClick={() => feedback.vote('up')}
+						onClick={() => feedback.openFeedbackDialog('up')}
 						disabled={feedback.isPending}
 						aria-label='Good conversation'
 					>
@@ -170,7 +170,7 @@ function renderSuggestion({
 						variant='ghost'
 						size='icon-sm'
 						className='hover:rounded-full'
-						onClick={() => feedback.setFeedbackDialogOpen(true)}
+						onClick={() => feedback.openFeedbackDialog('down')}
 						disabled={feedback.isPending}
 						aria-label='Bad conversation'
 					>
@@ -189,8 +189,9 @@ function renderSuggestion({
 				<NegativeFeedbackDialog
 					open={feedback.feedbackDialogOpen}
 					onOpenChange={feedback.setFeedbackDialogOpen}
-					onSubmit={(explanation) => feedback.vote('down', explanation)}
+					onSubmit={(explanation) => feedback.vote(feedback.pendingVote, explanation)}
 					isPending={feedback.isPending}
+					vote={feedback.pendingVote}
 				/>
 			</>
 		);
@@ -328,6 +329,8 @@ interface ConversationFeedback {
 	dismiss: () => void;
 	feedbackDialogOpen: boolean;
 	setFeedbackDialogOpen: (open: boolean) => void;
+	pendingVote: 'up' | 'down';
+	openFeedbackDialog: (vote: 'up' | 'down') => void;
 }
 
 function useConversationFeedback(): ConversationFeedback {
@@ -338,6 +341,7 @@ function useConversationFeedback(): ConversationFeedback {
 	const [dismissedChats, setDismissedChats] = useState<ReadonlySet<string>>(() => new Set());
 	const [thanksForChat, setThanksForChat] = useState<string | null>(null);
 	const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+	const [pendingVote, setPendingVote] = useState<'up' | 'down'>('down');
 
 	const submitFeedback = useMutation(
 		trpc.feedback.submit.mutationOptions({
@@ -402,6 +406,11 @@ function useConversationFeedback(): ConversationFeedback {
 		}
 	}, [chatId]);
 
+	const openFeedbackDialog = useCallback((value: 'up' | 'down') => {
+		setPendingVote(value);
+		setFeedbackDialogOpen(true);
+	}, []);
+
 	return {
 		isVisible: isEligible && isTriggered,
 		showThanks,
@@ -410,6 +419,8 @@ function useConversationFeedback(): ConversationFeedback {
 		dismiss,
 		feedbackDialogOpen,
 		setFeedbackDialogOpen,
+		pendingVote,
+		openFeedbackDialog,
 	};
 }
 

@@ -21,6 +21,7 @@ export function AssistantMessageActions({
 	chatId: string;
 }) {
 	const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+	const [pendingVote, setPendingVote] = useState<'up' | 'down'>('down');
 	const { isCopied, copy } = useCopyToClipboard();
 
 	const submitFeedback = useMutation(
@@ -40,26 +41,19 @@ export function AssistantMessageActions({
 		}),
 	);
 
-	const handlePositiveFeedback = () => {
-		if (message.feedback?.vote === 'up') {
+	const openFeedbackDialog = (vote: 'up' | 'down') => {
+		if (vote === 'up' && message.feedback?.vote === 'up') {
 			return;
 		}
-		submitFeedback.mutate({
-			chatId,
-			messageId: message.id,
-			vote: 'up',
-		});
-	};
-
-	const handleNegativeFeedbackClick = () => {
+		setPendingVote(vote);
 		setShowFeedbackDialog(true);
 	};
 
-	const handleNegativeFeedbackSubmit = (explanation?: string) => {
+	const handleFeedbackSubmit = (explanation?: string) => {
 		submitFeedback.mutate({
 			chatId,
 			messageId: message.id,
-			vote: 'down',
+			vote: pendingVote,
 			explanation,
 		});
 		setShowFeedbackDialog(false);
@@ -71,7 +65,7 @@ export function AssistantMessageActions({
 				<Button
 					variant='ghost'
 					size='icon-sm'
-					onClick={handlePositiveFeedback}
+					onClick={() => openFeedbackDialog('up')}
 					disabled={submitFeedback.isPending}
 					className={cn(
 						'hover:rounded-full',
@@ -85,7 +79,7 @@ export function AssistantMessageActions({
 				<Button
 					variant='ghost'
 					size='icon-sm'
-					onClick={handleNegativeFeedbackClick}
+					onClick={() => openFeedbackDialog('down')}
 					disabled={submitFeedback.isPending}
 					className={cn(
 						'hover:rounded-full',
@@ -110,22 +104,44 @@ export function AssistantMessageActions({
 			<NegativeFeedbackDialog
 				open={showFeedbackDialog}
 				onOpenChange={setShowFeedbackDialog}
-				onSubmit={handleNegativeFeedbackSubmit}
+				onSubmit={handleFeedbackSubmit}
 				isPending={submitFeedback.isPending}
+				vote={pendingVote}
 			/>
 		</>
 	);
 }
+
+const FEEDBACK_DIALOG_COPY = {
+	up: {
+		title: 'What went well?',
+		description: 'Help us improve by explaining what went well with this response.',
+		placeholder: 'Tell us what you liked (optional)',
+	},
+	down: {
+		title: 'What went wrong?',
+		description: 'Help us improve by explaining what was wrong with this response.',
+		placeholder: 'Tell us what could be better (optional)',
+	},
+} as const;
 
 interface NegativeFeedbackDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSubmit: (explanation?: string) => void;
 	isPending: boolean;
+	vote?: 'up' | 'down';
 }
 
-export function NegativeFeedbackDialog({ open, onOpenChange, onSubmit, isPending }: NegativeFeedbackDialogProps) {
+export function NegativeFeedbackDialog({
+	open,
+	onOpenChange,
+	onSubmit,
+	isPending,
+	vote = 'down',
+}: NegativeFeedbackDialogProps) {
 	const [explanation, setExplanation] = useState('');
+	const copy = FEEDBACK_DIALOG_COPY[vote];
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -144,15 +160,15 @@ export function NegativeFeedbackDialog({ open, onOpenChange, onSubmit, isPending
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent showCloseButton>
 				<DialogHeader>
-					<DialogTitle>What went wrong?</DialogTitle>
+					<DialogTitle>{copy.title}</DialogTitle>
 					<DialogDescription className='text-sm text-muted-foreground font-medium'>
-						Help us improve by explaining what was wrong with this response.
+						{copy.description}
 					</DialogDescription>
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className='flex flex-col gap-4'>
 					<Textarea
-						placeholder='Tell us what could be better (optional)'
+						placeholder={copy.placeholder}
 						value={explanation}
 						onKeyDown={handleKeyDown}
 						onChange={(e) => setExplanation(e.target.value)}
