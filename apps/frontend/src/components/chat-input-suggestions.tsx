@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { MessageSquare, X, ThumbsDown, ThumbsUp, Check, Plug } from 'lucide-react';
-import { NegativeFeedbackDialog } from './chat-messages/assistant-message-actions';
+import { FeedbackDialog } from './chat-messages/assistant-message-actions';
 import { Button } from './ui/button';
 import StoryIcon from './ui/story-icon';
 import type { UIMessage, UIToolPart } from '@nao/backend/chat';
@@ -186,7 +186,7 @@ function renderSuggestion({
 						<X className='size-4' />
 					</Button>
 				</SuggestionCard>
-				<NegativeFeedbackDialog
+				<FeedbackDialog
 					open={feedback.feedbackDialogOpen}
 					onOpenChange={feedback.setFeedbackDialogOpen}
 					onSubmit={(explanation) => feedback.vote(feedback.pendingVote, explanation)}

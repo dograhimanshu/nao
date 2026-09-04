@@ -101,7 +101,7 @@ export function AssistantMessageActions({
 				</Button>
 			</div>
 
-			<NegativeFeedbackDialog
+			<FeedbackDialog
 				open={showFeedbackDialog}
 				onOpenChange={setShowFeedbackDialog}
 				onSubmit={handleFeedbackSubmit}
@@ -125,7 +125,7 @@ const FEEDBACK_DIALOG_COPY = {
 	},
 } as const;
 
-interface NegativeFeedbackDialogProps {
+interface FeedbackDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSubmit: (explanation?: string) => void;
@@ -133,13 +133,7 @@ interface NegativeFeedbackDialogProps {
 	vote?: 'up' | 'down';
 }
 
-export function NegativeFeedbackDialog({
-	open,
-	onOpenChange,
-	onSubmit,
-	isPending,
-	vote = 'down',
-}: NegativeFeedbackDialogProps) {
+export function FeedbackDialog({ open, onOpenChange, onSubmit, isPending, vote = 'down' }: FeedbackDialogProps) {
 	const [explanation, setExplanation] = useState('');
 	const copy = FEEDBACK_DIALOG_COPY[vote];
 
@@ -173,7 +167,7 @@ export function NegativeFeedbackDialog({
 						onKeyDown={handleKeyDown}
 						onChange={(e) => setExplanation(e.target.value)}
 						rows={4}
-						className='resize-none bg-panel'
+						className='resize-none bg-panel break-words [overflow-wrap:anywhere]'
 					/>
 
 					<Button variant='primary-gradient' className='rounded-full' type='submit' disabled={isPending}>
