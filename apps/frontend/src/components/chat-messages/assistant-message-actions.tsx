@@ -46,7 +46,7 @@ export function AssistantMessageActions({
 		setShowFeedbackDialog(true);
 	};
 
-	const handleFeedbackSubmit = (explanation?: string) => {
+	const handleFeedbackSubmit = (explanation: string) => {
 		submitFeedback.mutate({
 			chatId,
 			messageId: message.id,
@@ -128,7 +128,7 @@ const FEEDBACK_DIALOG_COPY = {
 interface FeedbackDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSubmit: (explanation?: string) => void;
+	onSubmit: (explanation: string) => void;
 	isPending: boolean;
 	vote?: 'up' | 'down';
 	initialExplanation?: string;
@@ -153,7 +153,7 @@ export function FeedbackDialog({
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		onSubmit(explanation.trim() || undefined);
+		onSubmit(explanation.trim());
 		setExplanation('');
 	};
 

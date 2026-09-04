@@ -6,14 +6,18 @@ import dbConfig, { Dialect } from '../db/dbConfig';
 import type { FeedbackWithDetails } from '../types/message-feedback';
 
 export const upsertFeedback = async (feedback: NewMessageFeedback): Promise<MessageFeedback> => {
+	// `undefined` means "leave explanation unchanged" (messaging providers often omit it).
+	// An explicit empty string or null clears the stored comment.
+	const explanation = feedback.explanation === undefined ? undefined : feedback.explanation?.trim() || null;
+
 	const [result] = await db
 		.insert(s.messageFeedback)
-		.values(feedback)
+		.values({ ...feedback, explanation })
 		.onConflictDoUpdate({
 			target: s.messageFeedback.messageId,
 			set: {
 				vote: feedback.vote,
-				explanation: feedback.explanation,
+				...(explanation !== undefined ? { explanation } : {}),
 			},
 		})
 		.returning()

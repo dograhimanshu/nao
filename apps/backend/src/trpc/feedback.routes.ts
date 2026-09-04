@@ -36,13 +36,14 @@ export const feedbackRoutes = {
 			const feedback = await feedbackQueries.upsertFeedback({
 				messageId: input.messageId,
 				vote: input.vote,
+				// Always pass through when present (including '') so clears become null in upsert.
 				explanation: input.explanation,
 			});
 
 			posthog.capture(ctx.user.id, PostHogEvent.MessageFeedbackSubmitted, {
 				project_id: ctx.project.id,
 				vote: input.vote,
-				has_explanation: !!input.explanation,
+				has_explanation: !!feedback.explanation,
 			});
 			return feedback;
 		}),
