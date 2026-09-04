@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ThumbsUp, ThumbsDown, Copy, Check } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import type { UIMessage } from '@nao/backend/chat';
@@ -56,6 +56,8 @@ export function AssistantMessageActions({
 		setShowFeedbackDialog(false);
 	};
 
+	const initialExplanation = message.feedback?.vote === pendingVote ? (message.feedback.explanation ?? '') : '';
+
 	return (
 		<>
 			<div className={cn('flex items-center gap-1', className)}>
@@ -104,6 +106,7 @@ export function AssistantMessageActions({
 				onSubmit={handleFeedbackSubmit}
 				isPending={submitFeedback.isPending}
 				vote={pendingVote}
+				initialExplanation={initialExplanation}
 			/>
 		</>
 	);
@@ -128,11 +131,25 @@ interface FeedbackDialogProps {
 	onSubmit: (explanation?: string) => void;
 	isPending: boolean;
 	vote?: 'up' | 'down';
+	initialExplanation?: string;
 }
 
-export function FeedbackDialog({ open, onOpenChange, onSubmit, isPending, vote = 'down' }: FeedbackDialogProps) {
+export function FeedbackDialog({
+	open,
+	onOpenChange,
+	onSubmit,
+	isPending,
+	vote = 'down',
+	initialExplanation = '',
+}: FeedbackDialogProps) {
 	const [explanation, setExplanation] = useState('');
 	const copy = FEEDBACK_DIALOG_COPY[vote];
+
+	useEffect(() => {
+		if (open) {
+			setExplanation(initialExplanation);
+		}
+	}, [open, initialExplanation]);
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
