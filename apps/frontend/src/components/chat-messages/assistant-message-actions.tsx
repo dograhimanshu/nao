@@ -42,9 +42,6 @@ export function AssistantMessageActions({
 	);
 
 	const openFeedbackDialog = (vote: 'up' | 'down') => {
-		if (vote === 'up' && message.feedback?.vote === 'up') {
-			return;
-		}
 		setPendingVote(vote);
 		setShowFeedbackDialog(true);
 	};
@@ -150,8 +147,15 @@ export function FeedbackDialog({ open, onOpenChange, onSubmit, isPending, vote =
 		}
 	};
 
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (!nextOpen) {
+			setExplanation('');
+		}
+		onOpenChange(nextOpen);
+	};
+
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent showCloseButton>
 				<DialogHeader>
 					<DialogTitle>{copy.title}</DialogTitle>
