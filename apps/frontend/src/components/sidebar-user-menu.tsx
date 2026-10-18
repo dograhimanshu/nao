@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { ArrowLeft, SlidersVertical } from 'lucide-react';
 import { Avatar } from './ui/avatar';
+import { SimpleTooltip } from './ui/tooltip';
 import { useSession } from '@/lib/auth-client';
 import { cn, hideIf } from '@/lib/utils';
 
@@ -51,9 +52,11 @@ export function SidebarUserMenu({ isCollapsed, isInSettings }: SidebarUserMenuPr
 							<SlidersVertical className='size-4' />
 						</Link>
 					) : (
-						<Link to='/' className='text-muted-foreground hover:text-foreground'>
-							<ArrowLeft className='size-4' />
-						</Link>
+						<SimpleTooltip content='Back to app'>
+							<Link to='/' className='text-muted-foreground hover:text-foreground'>
+								<ArrowLeft className='size-4' />
+							</Link>
+						</SimpleTooltip>
 					)}
 				</div>
 			</div>

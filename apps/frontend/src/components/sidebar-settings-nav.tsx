@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { ArrowUpRight, Search, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Search, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -245,6 +245,10 @@ export function SidebarSettingsNav({
 
 	return (
 		<div className={cn('flex flex-1 min-h-0 flex-col gap-1 overflow-y-auto', hideIf(isCollapsed))}>
+			<Link to='/' className={cn(navRowClassName, 'mx-2 mt-2 hover:bg-sidebar-accent hover:text-foreground')}>
+				<ArrowLeft className='size-3.5 text-muted-foreground' />
+				Back to app
+			</Link>
 			{!isViewer && (
 				<div className='px-2 pt-2'>
 					<div className='relative'>
